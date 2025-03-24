@@ -7,5 +7,6 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_email = Column(String, index=True)
+    user_name = Column(String, index=True)
+    role = Column(String, index=True)
     refresh_token = Column(String, index=True)
-    access_token = Column(String, index=True)
