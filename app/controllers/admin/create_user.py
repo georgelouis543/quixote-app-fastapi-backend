@@ -4,12 +4,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
-from app.schemas.user import UserBase
+from app.schemas.user import UserCreate
 
 
-async def create_user_handler(user: UserBase, session: AsyncSession):
+async def create_user_handler(user: UserCreate, session: AsyncSession):
     stmt = insert(User).values(user_email=user.user_email,
-                               user_name=user.user_email,
+                               user_name=user.user_name,
                                role=user.role).returning(User)
     try:
         result = await session.execute(stmt)

@@ -6,7 +6,7 @@ class User(Base):
     __tablename__ = 'userTable'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_email = Column(String, index=True)
-    user_name = Column(String, index=True)
-    role = Column(String, index=True)
+    user_email = Column(String, index=True, unique=True, nullable=False)
+    user_name = Column(String, index=True, unique=True, nullable=False)
+    role = Column(String, index=True, nullable=False, default="user")
     refresh_token = Column(String, index=True)
