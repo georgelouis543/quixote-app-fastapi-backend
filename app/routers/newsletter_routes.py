@@ -8,7 +8,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("")
 async def root() -> dict:
     return {
         "message": "You can Export all Newsletter related Analytics here"

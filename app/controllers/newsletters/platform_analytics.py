@@ -50,7 +50,7 @@ async def fetch_distribution_data(dist, headers, client):
         return {"distribution_id": dist_id, "scheduled_date": scheduled_date, "error": str(e)}
 
     except Exception as e:
-        return {}
+        return {"distribution_id": dist_id, "scheduled_date": scheduled_date, "error": str(e)}
 
 
 async def get_all_analytics(nl_id, auth_token):

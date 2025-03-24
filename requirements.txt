@@ -1,1 +1,4 @@
 fastapi[standard]
+asyncpg
+sqlalchemy[asyncio]
+python-dotenv
