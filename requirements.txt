@@ -3,3 +3,5 @@ asyncpg
 sqlalchemy[asyncio]
 python-dotenv
 pyJWT
+requests
+google-auth
