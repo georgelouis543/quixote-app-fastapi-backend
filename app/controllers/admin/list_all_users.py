@@ -8,7 +8,7 @@ from app.models.user import User
 
 async def list_users_handler(session: AsyncSession):
     try:
-        stmt = select(User)
+        stmt = select(User).order_by(User.id.asc())
         result = await session.execute(stmt)
         all_users = result.scalars().all()
 
