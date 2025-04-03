@@ -3,8 +3,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.config.database import init_db
+from app.logging import configure_logging, LogLevels
 from app.middleware.app_middleware import add_middlewares
 from app.routers import newsletter_routes, auth_routes, admin_routes
+
+configure_logging(LogLevels.info)
 
 
 @asynccontextmanager

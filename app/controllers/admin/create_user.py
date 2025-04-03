@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import HTTPException
 from sqlalchemy import insert
 from sqlalchemy.exc import SQLAlchemyError
@@ -19,8 +21,13 @@ async def create_user_handler(user: UserCreate, session: AsyncSession):
             raise HTTPException(status_code=400, detail="Failed to create product")
 
         await session.commit()
+        logging.info(f"Created new user with ID: {new_user.id} and email: {new_user.user_email}")
         return new_user
 
     except SQLAlchemyError as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

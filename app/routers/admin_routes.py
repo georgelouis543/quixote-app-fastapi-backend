@@ -10,7 +10,7 @@ from app.schemas.user import UserCreate, UserRead
 
 router = APIRouter(
     prefix="/admin",
-    tags=["Admin"]
+    tags=["admin"]
 )
 
 
@@ -20,7 +20,7 @@ async def root() -> dict:
 
 
 @router.post("/add-user")
-async def add_user(user: UserCreate, session: AsyncSession = Depends(get_session)) -> dict:
+async def add_user(user: UserCreate, session: AsyncSession = Depends(get_session)):
     new_user = await create_user_handler(user, session)
     return new_user
 

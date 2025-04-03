@@ -4,7 +4,7 @@ from app.controllers.newsletters.platform_analytics import get_all_analytics
 
 router = APIRouter(
     prefix="/newsletter-analytics",
-    tags=["Newsletter Analytics"]
+    tags=["newsletter-analytics"]
 )
 
 

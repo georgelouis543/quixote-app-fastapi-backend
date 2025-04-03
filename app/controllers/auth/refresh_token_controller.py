@@ -54,12 +54,14 @@ async def handle_refresh_token(request: Request, session: AsyncSession):
     if decoded_refresh_token["user_email"] == found_user.user_email:
         access_token = create_access_token(
             found_user.user_email,
-            found_user.user_name
+            found_user.user_name,
+            found_user.role
         )
         data_to_return = {
             "access_token": access_token,
             "token_type": "Bearer",
-            "user_email": found_user.user_email
+            "user_email": found_user.user_email,
+            "user_role": found_user.role
         }
         response = JSONResponse(content=data_to_return)
         return response

@@ -1,6 +1,13 @@
+import logging
+
 from fastapi import HTTPException
 import asyncio
 import httpx
+
+"""
+Below functions are to make requests to the nl api asynchronously 
+but for some reason they don't work for newsletters with many distributions
+"""
 
 
 async def fetch_distribution_data(dist, headers, client):
@@ -28,29 +35,51 @@ async def fetch_distribution_data(dist, headers, client):
         response_2.raise_for_status()
         recipients = response_2.json()["recipients"]
 
-        # Aggregate metrics
-        metrics = {
-            "distribution_id": dist_id,
-            "subject": subject,
-            "scheduled_date": scheduled_date,
-            "status": status,
-            "total_opened": sum(r["opened"] for r in recipients),
-            "total_clicked": sum(r["clicked"] for r in recipients),
-            "total_bounced": sum(r["bounced"] for r in recipients),
-            "total_blocked": sum(r["blocked"] for r in recipients),
-            "total_delivered": sum(r["delivered"] for r in recipients),
-        }
+        # Aggregate metrics and add to out_list
 
-        return metrics
+        out_list = [
+            {
+                "distribution_id": dist_id,
+                "subject": subject,
+                "scheduled_date": scheduled_date,
+                "email_address": r["emailAddress"],
+                "status": status,
+                "opened": r.get("opened", 0),
+                "clicked": r.get("clicked", 0),
+                "bounced": r.get("bounced", 0),
+                "blocked": r.get("blocked", 0),
+                "delivered": r.get("delivered", 0),
+            }
+            for r in recipients
+        ]
+
+        logging.info(f"Fetching data for distribution {dist_id}")
+        # logging.info(out_list)  # Just for testing
+        return {"distribution_id": dist_id,
+                "scheduled_date": scheduled_date,
+                "success": "true",
+                "error": ""}
 
     except httpx.HTTPStatusError as e:
-        return {"distribution_id": dist_id, "scheduled_date": scheduled_date, "error": str(e)}
+        logging.warning(f"HTTPStatusError occurred for distribution {dist_id}: {str(e)}")
+        return {"distribution_id": dist_id,
+                "scheduled_date": scheduled_date,
+                "success": "true",
+                "error": str(e)}
 
     except httpx.RequestError as e:
-        return {"distribution_id": dist_id, "scheduled_date": scheduled_date, "error": str(e)}
+        logging.warning(f"RequestError occurred for distribution {dist_id}: {str(e)}")
+        return {"distribution_id": dist_id,
+                "scheduled_date": scheduled_date,
+                "success": "true",
+                "error": str(e)}
 
     except Exception as e:
-        return {"distribution_id": dist_id, "scheduled_date": scheduled_date, "error": str(e)}
+        logging.warning(f"An Exception occurred for distribution {dist_id}: {str(e)}")
+        return {"distribution_id": dist_id,
+                "scheduled_date": scheduled_date,
+                "success": "true",
+                "error": str(e)}
 
 
 async def get_all_analytics(nl_id, auth_token):

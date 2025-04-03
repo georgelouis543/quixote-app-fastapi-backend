@@ -11,14 +11,17 @@ ALGORITHM = os.getenv("ALGORITHM")
 
 
 # These functions are responsible for creating Access and Refresh tokens
-def create_refresh_token(user_email: str, user_name: str):
+def create_refresh_token(user_email: str, user_name: str, user_role: str):
     try:
         found_user_email = user_email
         found_user_name = user_name
+        found_user_role = user_role
+
         payload = {
             'user_email': found_user_email,
             'username': found_user_name,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expiration time
+            'user_role': found_user_role,
+            'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=1)  # Token expiration time
         }
         refresh_token = jwt.encode(payload, REFRESH_TOKEN_SECRET, algorithm=ALGORITHM)
         print(refresh_token)
@@ -29,14 +32,17 @@ def create_refresh_token(user_email: str, user_name: str):
         return None
 
 
-def create_access_token(user_email: str, user_name: str):
+def create_access_token(user_email: str, user_name: str, user_role: str):
     try:
         user_email = user_email
         user_name = user_name
+        user_role = user_role
         print(user_email)
+
         payload = {
             'user_email': user_email,
             'username': user_name,
+            'user_role': user_role,
             'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=10)  # Token expiration time
         }
         access_token = jwt.encode(payload, ACCESS_TOKEN_SECRET, algorithm=ALGORITHM)

@@ -11,7 +11,7 @@ from app.schemas.token import TokenResponse
 
 router = APIRouter(
     prefix="/auth",
-    tags=["Auth"]
+    tags=["auth"]
 )
 
 
