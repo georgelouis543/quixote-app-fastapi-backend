@@ -1,5 +1,7 @@
+import io
 import logging
 
+import pandas as pd
 from fastapi import HTTPException
 import asyncio
 import httpx
@@ -55,31 +57,25 @@ async def fetch_distribution_data(dist, headers, client):
 
         logging.info(f"Fetching data for distribution {dist_id}")
         # logging.info(out_list)  # Just for testing
-        return {"distribution_id": dist_id,
-                "scheduled_date": scheduled_date,
-                "success": "true",
-                "error": ""}
+        return out_list
 
     except httpx.HTTPStatusError as e:
         logging.warning(f"HTTPStatusError occurred for distribution {dist_id}: {str(e)}")
-        return {"distribution_id": dist_id,
-                "scheduled_date": scheduled_date,
-                "success": "true",
-                "error": str(e)}
+        return [{"distribution_id": dist_id,
+                 "scheduled_date": scheduled_date,
+                 "error": str(e)}]
 
     except httpx.RequestError as e:
         logging.warning(f"RequestError occurred for distribution {dist_id}: {str(e)}")
-        return {"distribution_id": dist_id,
-                "scheduled_date": scheduled_date,
-                "success": "true",
-                "error": str(e)}
+        return [{"distribution_id": dist_id,
+                 "scheduled_date": scheduled_date,
+                 "error": str(e)}]
 
     except Exception as e:
         logging.warning(f"An Exception occurred for distribution {dist_id}: {str(e)}")
-        return {"distribution_id": dist_id,
-                "scheduled_date": scheduled_date,
-                "success": "true",
-                "error": str(e)}
+        return [{"distribution_id": dist_id,
+                 "scheduled_date": scheduled_date,
+                 "error": str(e)}]
 
 
 async def get_all_analytics(nl_id, auth_token):
@@ -103,17 +99,37 @@ async def get_all_analytics(nl_id, auth_token):
 
             # Fetch data in parallel using asyncio.gather
             tasks = [fetch_distribution_data(dist, headers, client) for dist in distributions]
-            final_data = await asyncio.gather(*tasks)
+            results = await asyncio.gather(*tasks)
 
-            return final_data
+            all_rows = [item for sublist in results for item in sublist]
+
+            if not all_rows:
+                raise HTTPException(status_code=404, detail="Newsletter not found")
+
+            return all_rows
 
     except httpx.HTTPStatusError:
         raise HTTPException(status_code=404, detail="Newsletter not found")
 
     except httpx.RequestError as e:
-        print(f"Error fetching distributions: {e}")
-        return []
+        logging.warning(f"Error fetching distributions: {e} for newsletter ID: {nl_id}")
+        raise HTTPException(status_code=404, detail="Newsletter not found")
+
+    except HTTPException as e:
+        logging.warning(f"Error fetching distributions: {e} for newsletter ID: {nl_id}")
+        raise e
 
     except Exception as e:
-        print(f"Error fetching distributions: {e}")
-        return []
+        logging.warning(f"Error fetching distributions: {e} for newsletter ID: {nl_id}")
+        raise HTTPException(status_code=500, detail="Something went wrong")
+
+
+def convert_to_csv_stream(data):
+    """
+    Convert a list of dictionaries to a CSV stream.
+    """
+    df = pd.DataFrame(data)  # Convert to DataFrame
+    stream = io.StringIO()
+    df.to_csv(stream, index=False)
+    stream.seek(0)  # Reset stream position
+    return stream  # Return in-memory CSV stream
