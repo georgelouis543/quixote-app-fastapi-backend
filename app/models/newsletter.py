@@ -10,7 +10,7 @@ class Newsletter(Base):
 
     id = Column(String, primary_key=True, index=True)  # Newsletter ID
     title = Column(String)  # Newsletter subject/title
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    created_at = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.timezone.utc))
 
 
 class Distribution(Base):
@@ -18,7 +18,7 @@ class Distribution(Base):
 
     id = Column(String, primary_key=True, index=True)  # Distribution ID
     newsletter_id = Column(String, ForeignKey("newsletters.id"))  # Linking to newsletters
-    scheduled_date = Column(DateTime)
+    scheduled_date = Column(DateTime(timezone=True))
     subject = Column(String, nullable=True)
     status = Column(String, index=True)
 
@@ -28,7 +28,7 @@ class Subscriber(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     email_address = Column(String, unique=True, index=True)
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC))
+    created_at = Column(DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC))
 
 
 class EmailAnalytics(Base):
