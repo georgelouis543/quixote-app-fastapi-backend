@@ -34,7 +34,7 @@ async def handle_refresh_token(request: Request, session: AsyncSession):
     found_user = result.scalar_one_or_none()
 
     if not found_user:
-        raise HTTPException(403, detail="Forbidden!")
+        raise HTTPException(401, detail="Unauthorized")
 
     # Decode the refresh token
     try:

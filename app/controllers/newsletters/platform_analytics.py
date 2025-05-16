@@ -11,6 +11,9 @@ Below functions are to make requests to the nl api asynchronously
 but for some reason they don't work for newsletters with many distributions
 """
 
+MAX_RETRIES = 3
+RETRY_DELAY = 2
+
 
 async def fetch_distribution_data(dist, headers, client):
     """
@@ -44,7 +47,7 @@ async def fetch_distribution_data(dist, headers, client):
                 "distribution_id": dist_id,
                 "subject": subject,
                 "scheduled_date": scheduled_date,
-                "email_address": r["emailAddress"],
+                "email_address": r.get("emailAddress", "None"),
                 "status": status,
                 "opened": r.get("opened", 0),
                 "clicked": r.get("clicked", 0),
@@ -61,21 +64,29 @@ async def fetch_distribution_data(dist, headers, client):
 
     except httpx.HTTPStatusError as e:
         logging.warning(f"HTTPStatusError occurred for distribution {dist_id}: {str(e)}")
-        return [{"distribution_id": dist_id,
-                 "scheduled_date": scheduled_date,
-                 "error": str(e)}]
+        raise
 
     except httpx.RequestError as e:
         logging.warning(f"RequestError occurred for distribution {dist_id}: {str(e)}")
-        return [{"distribution_id": dist_id,
-                 "scheduled_date": scheduled_date,
-                 "error": str(e)}]
+        raise
 
     except Exception as e:
         logging.warning(f"An Exception occurred for distribution {dist_id}: {str(e)}")
-        return [{"distribution_id": dist_id,
-                 "scheduled_date": scheduled_date,
-                 "error": str(e)}]
+        raise
+
+
+async def fetch_distribution_data_with_retry(dist, headers, client):
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return await fetch_distribution_data(dist, headers, client)
+        except Exception as e:
+            logging.warning(f"Attempt {attempt} failed for {dist['_id']}: {e}")
+            if attempt == MAX_RETRIES:
+                logging.error(f"Giving up on {dist['_id']} after {MAX_RETRIES} attempts.")
+                return [{"distribution_id": dist['_id'],
+                         "scheduled_date": dist.get("scheduledDate", None),
+                         "error": str(e)}]
+            await asyncio.sleep(RETRY_DELAY)
 
 
 async def get_all_analytics(nl_id, auth_token):
@@ -98,7 +109,7 @@ async def get_all_analytics(nl_id, auth_token):
             distributions = response.json()
 
             # Fetch data in parallel using asyncio.gather
-            tasks = [fetch_distribution_data(dist, headers, client) for dist in distributions]
+            tasks = [fetch_distribution_data_with_retry(dist, headers, client) for dist in distributions]
             results = await asyncio.gather(*tasks)
 
             all_rows = [item for sublist in results for item in sublist]

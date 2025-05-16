@@ -12,7 +12,7 @@ async def handle_logout(request: Request, session: AsyncSession):
     refresh_token = request.cookies.get("jwt")
 
     if not refresh_token:
-        raise HTTPException(401, detail="Could not authorize User!")
+        raise HTTPException(204, detail="Could not authorize User!")
 
     # Fetch user from database
     stmt = select(User).where(User.refresh_token == refresh_token)
@@ -30,7 +30,7 @@ async def handle_logout(request: Request, session: AsyncSession):
 
         # Create response and delete cookie
         response = JSONResponse(content={"message": "Logout success!"},
-                                status_code=401)
+                                status_code=200)
         response.delete_cookie(
             key="jwt",
             httponly=True,

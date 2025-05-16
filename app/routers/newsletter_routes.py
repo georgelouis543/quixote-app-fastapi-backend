@@ -23,7 +23,6 @@ async def root() -> dict:
 async def get_platform_analytics(newsletter_id: str, auth_token: str,
                                  session: AsyncSession = Depends(get_session)) -> StreamingResponse:
     analytics_data = await get_all_analytics(newsletter_id, auth_token)
-    await save_analytics_data_handler(newsletter_id, analytics_data, session)
     csv_stream = convert_to_csv_stream(analytics_data)
     return StreamingResponse(
         csv_stream,
