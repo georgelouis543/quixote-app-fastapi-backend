@@ -18,7 +18,7 @@ async def create_user_handler(user: UserCreate, session: AsyncSession):
         new_user = result.scalar_one_or_none()
 
         if not new_user:
-            raise HTTPException(status_code=400, detail="Failed to create product")
+            raise HTTPException(status_code=400, detail="Failed to create user")
 
         await session.commit()
         logging.info(f"Created new user with ID: {new_user.id} and email: {new_user.user_email}")

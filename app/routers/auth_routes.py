@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
@@ -13,6 +14,9 @@ router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 @router.get("")
