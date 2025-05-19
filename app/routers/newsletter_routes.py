@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends
+import pandas
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import StreamingResponse
 
 from app.config.database import get_session
+from app.controllers.newsletters.excel_generator_for_platform_analytics import dataframe_to_excel_stream
 from app.controllers.newsletters.platform_analytics import get_all_analytics, convert_to_csv_stream
 from app.controllers.newsletters.save_analytics import save_analytics_data_handler
+from app.helpers.dist_filter_by_time import TimeWindow
 
 router = APIRouter(
     prefix="/newsletter-analytics",
@@ -20,12 +23,28 @@ async def root() -> dict:
 
 
 @router.get("/get-platform-analytics")
-async def get_platform_analytics(newsletter_id: str, auth_token: str,
-                                 session: AsyncSession = Depends(get_session)) -> StreamingResponse:
-    analytics_data = await get_all_analytics(newsletter_id, auth_token)
-    csv_stream = convert_to_csv_stream(analytics_data)
+async def get_platform_analytics(
+        newsletter_id: str,
+        auth_token: str,
+        date_range: TimeWindow = Query("7d", description="7d, 1m, 3m or 6m"),
+        session: AsyncSession = Depends(get_session)
+) -> StreamingResponse:
+    analytics_data = await get_all_analytics(newsletter_id, auth_token, date_range)
+    # csv_stream = convert_to_csv_stream(analytics_data)
+    # return StreamingResponse(
+    #     csv_stream,
+    #     media_type="text/csv",
+    #     headers={"Content-Disposition": f"attachment; filename={newsletter_id}_analytics.csv"}
+    # )
+    df = pandas.DataFrame(analytics_data)
+
+    # 2. put DataFrame into Excel template
+    xlsx_stream = dataframe_to_excel_stream(df)
+
+    # 3. stream back to caller
+    filename = f"{newsletter_id}_analytics.xlsx"
     return StreamingResponse(
-        csv_stream,
-        media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename={newsletter_id}_analytics.csv"}
+        xlsx_stream,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )

@@ -16,6 +16,8 @@ router = APIRouter(
     tags=["admin"]
 )
 
+ALLOWED_ROLES = ["admin"]
+
 
 @router.get("")
 async def root() -> dict:
@@ -27,7 +29,7 @@ async def add_user(user: UserCreate,
                    token: str = Depends(oauth2_scheme),
                    session: AsyncSession = Depends(get_session)):
     decoded_access_token = verify_access_token(token)
-    verify_user_role(decoded_access_token, ["admin"])
+    verify_user_role(decoded_access_token, ALLOWED_ROLES)
     new_user = await create_user_handler(user, session)
     return new_user
 
@@ -37,6 +39,6 @@ async def get_all_users(token: str = Depends(oauth2_scheme),
                         session: AsyncSession = Depends(get_session)
                         ) -> list:
     decoded_access_token = verify_access_token(token)
-    verify_user_role(decoded_access_token, ["admin"])
+    verify_user_role(decoded_access_token, ALLOWED_ROLES)
     all_users = await list_users_handler(session)
     return all_users

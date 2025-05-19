@@ -6,6 +6,8 @@ from fastapi import HTTPException
 import asyncio
 import httpx
 
+from app.helpers.dist_filter_by_time import _cutoff, TimeWindow, _in_window
+
 """
 Below functions are to make requests to the nl api asynchronously 
 but for some reason they don't work for newsletters with many distributions
@@ -89,7 +91,11 @@ async def fetch_distribution_data_with_retry(dist, headers, client):
             await asyncio.sleep(RETRY_DELAY)
 
 
-async def get_all_analytics(nl_id, auth_token):
+async def get_all_analytics(
+        nl_id: str,
+        auth_token: str,
+        window: TimeWindow = "6m"
+):
     """
     Fetch analytics for all distributions asynchronously.
     """
@@ -108,8 +114,17 @@ async def get_all_analytics(nl_id, auth_token):
             response.raise_for_status()
             distributions = response.json()
 
+            boundary = _cutoff(window)
+            # Filter distributions by date-range
+            filtered_distributions = [d for d in distributions if _in_window(d, boundary)]
+            if not filtered_distributions:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"No distributions in the last {window}",
+                )
+
             # Fetch data in parallel using asyncio.gather
-            tasks = [fetch_distribution_data_with_retry(dist, headers, client) for dist in distributions]
+            tasks = [fetch_distribution_data_with_retry(dist, headers, client) for dist in filtered_distributions]
             results = await asyncio.gather(*tasks)
 
             all_rows = [item for sublist in results for item in sublist]
