@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
-from fastapi.responses import StreamingResponse
 
 HERE = Path(__file__).resolve().parent
 APP_ROOT = HERE.parent.parent
@@ -12,10 +11,11 @@ TEMPLATE_PATH = APP_ROOT / "quixote-report-template.xlsx"
 
 
 def dataframe_to_excel_stream(
-        df: pd.DataFrame,
+        analytics_data,
         template_path: Path = TEMPLATE_PATH
 ) -> io.BytesIO:
     """Return a BytesIO containing the filled‑in template workbook."""
+    df = pd.DataFrame(analytics_data)
     wb = openpyxl.load_workbook(template_path)
     ws = wb["raw-data-tracking"]  # sheet that holds Table1
     tbl = ws.tables["Table1"]  # pivot source table
