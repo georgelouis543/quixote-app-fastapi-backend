@@ -22,4 +22,4 @@ def verify_access_token(token: str) -> Mapping[str, Any]:
         )
         return decoded_access_token
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Unauthorized!")
+        raise HTTPException(status_code=403, detail="Forbidden!")

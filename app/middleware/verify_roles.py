@@ -10,4 +10,4 @@ def verify_user_role(decoded_token: Mapping[str, Any], allowed_roles: list[str])
     if decoded_access_token.get("user_role") in user_allowed_roles:
         return True
 
-    raise HTTPException(status_code=401, detail="Unauthorized!")
+    raise HTTPException(status_code=403, detail="Forbidden!")
