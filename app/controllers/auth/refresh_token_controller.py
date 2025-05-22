@@ -23,7 +23,7 @@ async def handle_refresh_token(request: Request, session: AsyncSession):
     refresh_token = request.cookies.get('jwt')
 
     if not refresh_token:
-        raise HTTPException(401, detail="Could not authorize User!")
+        raise HTTPException(401, detail="Unauthorized! Cookie missing!")
 
     print(refresh_token)
     print(request.headers)
@@ -67,4 +67,4 @@ async def handle_refresh_token(request: Request, session: AsyncSession):
         return response
 
     else:
-        raise HTTPException(403, detail="Forbidden")
+        raise HTTPException(403, detail="Forbidden!")

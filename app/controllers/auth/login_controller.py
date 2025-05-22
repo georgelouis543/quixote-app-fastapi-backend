@@ -15,7 +15,7 @@ async def handle_login(user_email: str, session: AsyncSession):
         found_user = result.scalar_one_or_none()
 
         if not found_user:
-            raise HTTPException(status_code=401, detail="Could not authorize User!")
+            raise HTTPException(status_code=401, detail="Unauthorized!")
 
         # Generate tokens
         refresh_token = create_refresh_token(found_user.user_email,
@@ -53,4 +53,4 @@ async def handle_login(user_email: str, session: AsyncSession):
 
     except Exception as e:
         print(f"Exited with Exception {e}")
-        raise HTTPException(status_code=401, detail="Could not authorize User!")
+        raise HTTPException(status_code=401, detail="Unauthorized")
