@@ -7,7 +7,7 @@ from sqlalchemy.orm import declarative_base
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL_PROD")
 
 # SQLAlchemy Base for model declarations
 Base = declarative_base()

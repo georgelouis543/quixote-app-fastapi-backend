@@ -7,6 +7,8 @@ def add_middlewares(app):
         allow_origins=[
             "http://localhost:5173",
             "http://localhost:3000",
+            "https://main.d1402vjoistkrj.amplifyapp.com",
+            "https://www.quixote-app.com"
         ],
         allow_credentials=True,
         allow_methods=["GET", "POST", "HEAD", "OPTIONS", "DELETE", "PUT"],
