@@ -17,8 +17,10 @@ async def list_users_handler(session: AsyncSession):
 
         return all_users
 
+    except HTTPException as e:
+        raise e
+
     except SQLAlchemyError as e:
-        await session.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
     except Exception as e:

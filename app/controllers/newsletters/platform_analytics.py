@@ -22,9 +22,9 @@ async def fetch_distribution_data(dist, headers, client):
     Fetch analytics for a single distribution asynchronously.
     """
     dist_id = dist["_id"]
-    scheduled_date = dist.get("scheduledDate", None)
+    scheduled_date = dist.get("scheduledDate", None) or dist.get("scheduleDate", None)
     status = dist.get("status", None)
-    subject = dist.get("newsletterSubject", None)
+    subject = dist.get("newsletterSubject", None) or dist.get("subject", None)
     analytics_url = f"https://nl-api.newsletters.meltwater.io/analytics/get/recipients/{dist_id}"
 
     try:
@@ -94,7 +94,8 @@ async def fetch_distribution_data_with_retry(dist, headers, client):
 async def get_all_analytics(
         nl_id: str,
         auth_token: str,
-        window: TimeWindow = "6m"
+        window: TimeWindow = "6m",
+        is_new_version: bool = False
 ):
     """
     Fetch analytics for all distributions asynchronously.
@@ -108,11 +109,18 @@ async def get_all_analytics(
 
     url = f"https://app.meltwater.com/api/newsletters/newsletter/distribution/{nl_id}/distributions"
 
+    if is_new_version is True:
+        url = f"https://nl-bff.newsletters.meltwater.io/newsletter/{nl_id}/distributions"
+
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             response.raise_for_status()
-            distributions = response.json()
+            
+            if is_new_version is True:
+                distributions = response.json().get("distributions", [])
+            else:
+                distributions = response.json()
 
             boundary = _cutoff(window)
             # Filter distributions by date-range

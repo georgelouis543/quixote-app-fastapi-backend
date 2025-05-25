@@ -20,7 +20,7 @@ def _cutoff(ts: TimeWindow) -> dt.datetime:
 
 def _in_window(dist: dict, boundary: dt.datetime) -> bool:
     # return True if 'scheduledDate' exists & is newer than *boundary*.
-    iso_ts = dist.get("scheduledDate")
+    iso_ts = dist.get("scheduledDate") or dist.get("scheduleDate")
     if not iso_ts:
         return False
     try:

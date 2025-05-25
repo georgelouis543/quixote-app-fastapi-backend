@@ -51,6 +51,10 @@ async def handle_login(user_email: str, session: AsyncSession):
 
         return response
 
-    except Exception as e:
+    except HTTPException as e:
         print(f"Exited with Exception {e}")
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise e
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error!")
+
