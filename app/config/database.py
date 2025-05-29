@@ -1,7 +1,11 @@
+import logging
 import os
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
+from fastapi import HTTPException
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import declarative_base
 
@@ -37,4 +41,7 @@ async def init_db():
 # Dependency for getting DB session
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
+        # Ping the DB to ensure the connection is alive
+        await session.execute(text("SELECT 1"))
+        logging.info("Database connection established successfully")
         yield session

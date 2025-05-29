@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.database import get_session
 from app.controllers.admin.create_user import create_user_handler
+from app.controllers.admin.delete_user import delete_user_handler
 from app.controllers.admin.list_all_users import list_users_handler
 from app.middleware.verify_jwt import verify_access_token
 from app.middleware.verify_roles import verify_user_role
@@ -42,3 +43,14 @@ async def get_all_users(token: str = Depends(oauth2_scheme),
     verify_user_role(decoded_access_token, ALLOWED_ROLES)
     all_users = await list_users_handler(session)
     return all_users
+
+
+@router.delete("/delete-user/{user_id}")
+async def delete_user(user_id: int,
+                      token: str = Depends(oauth2_scheme),
+                      session: AsyncSession = Depends(get_session)
+                      ) -> dict:
+    decoded_access_token = verify_access_token(token)
+    verify_user_role(decoded_access_token, ALLOWED_ROLES)
+    delete_result = await delete_user_handler(user_id, session)
+    return delete_result

@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import HTTPException
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,8 +10,13 @@ from app.schemas.user import UserCreate
 
 
 async def create_user_handler(user: UserCreate, session: AsyncSession):
-    # Checking for duplicates
-    find_duplicate_user_stmt = select(User).where(User.user_email == user.user_email)
+    # Checking for duplicates (both username and email must be unique)
+    find_duplicate_user_stmt = select(User).where(
+        or_(
+            User.user_email == user.user_email,
+            User.user_name == user.user_name
+        )
+    )
     exec_find_user_stmt = await session.execute(find_duplicate_user_stmt)
     found_duplicate = exec_find_user_stmt.scalar_one_or_none()
 
