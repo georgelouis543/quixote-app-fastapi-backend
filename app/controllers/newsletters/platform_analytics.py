@@ -122,14 +122,17 @@ async def get_all_analytics(
             else:
                 distributions = response.json()
 
-            boundary = _cutoff(window)
-            # Filter distributions by date-range
-            filtered_distributions = [d for d in distributions if _in_window(d, boundary)]
-            if not filtered_distributions:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"No distributions in the last {window}",
-                )
+            if window == "allTime":
+                filtered_distributions = distributions
+            else:
+                boundary = _cutoff(window)
+                # Filter distributions by date-range
+                filtered_distributions = [d for d in distributions if _in_window(d, boundary)]
+                if not filtered_distributions:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"No distributions in the last {window}",
+                    )
 
             # Fetch data in parallel using asyncio.gather
             tasks = [fetch_distribution_data_with_retry(dist, headers, client) for dist in filtered_distributions]

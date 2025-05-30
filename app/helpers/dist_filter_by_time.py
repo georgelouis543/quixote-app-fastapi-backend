@@ -1,7 +1,7 @@
 import datetime as dt
 from typing import Literal
 
-TimeWindow = Literal["7d", "1m", "3m", "6m"]
+TimeWindow = Literal["7d", "1m", "3m", "6m", "allTime"]
 
 
 # return the time-range between which the distributions must be filtered
@@ -15,6 +15,7 @@ def _cutoff(ts: TimeWindow) -> dt.datetime:
         return now - dt.timedelta(days=90)
     if ts == "6m":
         return now - dt.timedelta(days=180)
+
     raise ValueError("Unsupported time‑window")
 
 
