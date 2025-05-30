@@ -18,7 +18,7 @@ async def create_user_handler(user: UserCreate, session: AsyncSession):
         )
     )
     exec_find_user_stmt = await session.execute(find_duplicate_user_stmt)
-    found_duplicate = exec_find_user_stmt.scalar_one_or_none()
+    found_duplicate = exec_find_user_stmt.scalars().first()  # Checking if at least one match exists
 
     if found_duplicate:
         raise HTTPException(status_code=409, detail="User already exists!")
