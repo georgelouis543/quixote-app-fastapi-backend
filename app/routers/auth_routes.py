@@ -34,12 +34,18 @@ async def login(
 
 
 @router.get("/refresh", response_model=TokenResponse)
-async def refresh(request: Request, session: AsyncSession = Depends(get_session)):
+async def refresh(
+        request: Request,
+        session: AsyncSession = Depends(get_session)
+):
     response = await handle_refresh_token(request, session)
     return response
 
 
 @router.get("/logout")
-async def logout(request: Request, session: AsyncSession = Depends(get_session)):
+async def logout(
+        request: Request,
+        session: AsyncSession = Depends(get_session)
+):
     response = await handle_logout(request, session)
     return response

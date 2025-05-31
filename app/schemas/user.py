@@ -43,3 +43,14 @@ class UserUpdate(BaseModel):
             raise ValueError("Email must be a meltwater.com address")
         return v
 
+
+class UpdatedUserResponse(BaseModel):
+    id: int
+    user_email: str
+    user_name: str
+    role: UserRole
+
+    class Config:
+        from_attributes = True
+
+
