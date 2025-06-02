@@ -11,7 +11,7 @@ async def update_user_handler(
         user_id: int,
         update_info: UserUpdate,
         session: AsyncSession
-):
+) -> dict:
     try:
         user_id = user_id
         update_info = update_info
@@ -47,13 +47,13 @@ async def update_user_handler(
         ):
             raise HTTPException(status_code=400, detail="No changes detected!")
 
-        if update_info.user_email is not None:
+        if update_info.user_email is not None and update_info.user_email != existing_user.user_email:
             existing_user.user_email = update_info.user_email
 
-        if update_info.user_name is not None:
+        if update_info.user_name is not None and update_info.user_name != existing_user.user_name:
             existing_user.user_name = update_info.user_name
 
-        if update_info.role is not None:
+        if update_info.role is not None and update_info.role != existing_user.role:
             existing_user.role = update_info.role
 
         await session.commit()
