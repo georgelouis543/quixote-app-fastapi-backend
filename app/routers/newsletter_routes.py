@@ -16,7 +16,7 @@ router = APIRouter(
     tags=["newsletter-analytics"]
 )
 
-ALLOWED_ROLES = ["admin"]
+ALLOWED_ROLES = ["admin", "user"]
 
 
 @router.get("")

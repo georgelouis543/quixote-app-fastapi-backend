@@ -1,22 +1,15 @@
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config.allowed_headers import allowed_headers
+from app.config.allowed_methods import allowed_methods
+from app.config.allowed_origns import allowed_origins
+
 
 def add_middlewares(app):
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "https://main.d1402vjoistkrj.amplifyapp.com",
-            "https://www.quixote-app.com"
-        ],
+        allow_origins=allowed_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "HEAD", "OPTIONS", "DELETE", "PUT"],
-        allow_headers=[
-            "Access-Control-Allow-Headers",
-            "Content-Type",
-            "Authorization",
-            "Access-Control-Allow-Origin",
-            "Set-Cookie",
-        ],
+        allow_methods=allowed_methods,
+        allow_headers=allowed_headers
     )
