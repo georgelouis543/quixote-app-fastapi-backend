@@ -18,13 +18,17 @@ async def handle_login(user_email: str, session: AsyncSession):
             raise HTTPException(status_code=401, detail="Unauthorized!")
 
         # Generate tokens
-        refresh_token = create_refresh_token(found_user.user_email,
-                                             found_user.user_name,
-                                             found_user.role)
+        refresh_token = create_refresh_token(
+            found_user.user_email,
+            found_user.user_name,
+            found_user.role
+        )
 
-        access_token = create_access_token(found_user.user_email,
-                                           found_user.user_name,
-                                           found_user.role)
+        access_token = create_access_token(
+            found_user.user_email,
+            found_user.user_name,
+            found_user.role
+        )
 
         # Update refresh token in the database
         found_user.refresh_token = refresh_token
@@ -57,4 +61,3 @@ async def handle_login(user_email: str, session: AsyncSession):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error!")
-
