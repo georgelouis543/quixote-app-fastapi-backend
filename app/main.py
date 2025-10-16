@@ -29,5 +29,5 @@ app.include_router(newsletter_routes.router)
 async def root() -> dict:
     return {
         "message": "Welcome to Quixote App - Built by Lord Wilmore",
-        "description": "Latest Deployment on 03 August 22:41:00 IST using Github Actions."
+        "description": "Latest Deployment on 16 Oct 14:50:00 IST using Github Actions."
     }
